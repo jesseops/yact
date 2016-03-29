@@ -13,15 +13,23 @@ class MissingConfig(Exception):
     pass
 
 
+class ConfigEditFailed(Exception):
+    pass
+
+
 class Pudding(object):
-    def __init__(self, file):
+    def __init__(self, file, safe_load=True):
+        self.safe_load = safe_load
         self.filename = file
         self._lock = Lock()
 
     def refresh(self):
         with self._lock:
             with open(self.filename, 'r') as f:
-                self._data = yaml.safe_load(f)
+                if self.safe_load:
+                    self._data = yaml.safe_load(f)
+                else:
+                    self._data = yaml.load(f)
                 self.refreshed = datetime.now()
                 self.refreshed_utc = datetime.utcnow()
 
@@ -32,6 +40,10 @@ class Pudding(object):
     def set(self, item, value):
         with self._lock:
             self._data[item] = value
+
+    def remove(self, item):
+        with self._lock:
+            self._data.pop(item)
 
     @property
     def sections(self):
@@ -69,6 +81,15 @@ class Pudding(object):
         with self._lock:
             with open(self.filename, 'w') as f:
                 yaml.dump(self._data, f, default_flow_style=False)
+
+    def __repr__(self):
+        return "<{} - {}>".format(self.__class__.__name__, self.filename)
+
+    def __setattr__(self, attr, value):
+        if attr not in ['safe_load', 'filename', '_lock', '_data', 'refreshed', 'refreshed_utc']:
+            raise ConfigEditFailed("Setting config directly on {} is not allowed".format(self))
+        else:
+            super().__setattr__(attr, value)
 
     def __getitem__(self, item):
         return self._data[item]

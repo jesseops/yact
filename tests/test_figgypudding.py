@@ -1,6 +1,6 @@
 import os
 import unittest
-from figgypudding import Pudding
+from figgypudding import Pudding, ConfigEditFailed
 
 class test_FiggyPudding(unittest.TestCase):
     SAMPLE_CFG = os.path.join(os.path.curdir, 'sample.conf')
@@ -19,6 +19,14 @@ class test_FiggyPudding(unittest.TestCase):
         self.assertIsInstance(config.sections, list)
         self.assertEqual(config.get('db'), config['db'])
         config.set('pudding', {'yummy': True})
+        config._data['pudding']['foo'] = {'bar': 1}
+        config.remove('environment')
+        with self.assertRaises(ConfigEditFailed):
+            config.environment = 'development'
+        with self.assertRaises(KeyError):
+            env = config['environment']
+        config.set('environment', 'development')
+        self.assertEqual(config['environment'], 'development')
         config.save()
 
 
