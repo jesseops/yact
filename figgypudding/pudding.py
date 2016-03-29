@@ -1,6 +1,6 @@
 import os
+import sys
 import yaml
-import time
 import logging
 from threading import Lock
 from datetime import datetime, timedelta
@@ -89,7 +89,10 @@ class Pudding(object):
         if attr not in ['safe_load', 'filename', '_lock', '_data', 'refreshed', 'refreshed_utc']:
             raise ConfigEditFailed("Setting config directly on {} is not allowed".format(self))
         else:
-            super().__setattr__(attr, value)
+            if sys.version_info.major == 2:
+                super(self.__class__, self).__setattr__(attr, value):
+            else:
+                super().__setattr__(attr, value)
 
     def __getitem__(self, item):
         return self._data[item]
