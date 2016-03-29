@@ -1,2 +1,4 @@
 *.pyc
 figgypudding.conf
+dist
+*.egg-info
