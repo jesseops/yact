@@ -90,7 +90,7 @@ class Pudding(object):
             raise ConfigEditFailed("Setting config directly on {} is not allowed".format(self))
         else:
             if sys.version_info.major == 2:
-                super(self.__class__, self).__setattr__(attr, value):
+                super(self.__class__, self).__setattr__(attr, value)
             else:
                 super().__setattr__(attr, value)
 
