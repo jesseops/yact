@@ -16,4 +16,6 @@ Examples
 ::
 
     from figgypudding import Pudding
-    config = Pudding.search('sample.conf')
+    config = Pudding.from_search('sample.conf')
+
+    config = Pudding.from_file('/etc/sample.conf')
