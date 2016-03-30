@@ -18,7 +18,7 @@ setup(
     author="Jesse Roberts",
     author_email="jesse@hackedpotatoes.com",
     version=__version__,
-    url="http://hackedpotatoes.com",
+    url="https://github.com/dreadpirate15/figgypudding",
     install_requires=__requires__,
     extras_require={'test': ['nosetests']},
     packages=['figgypudding'],
