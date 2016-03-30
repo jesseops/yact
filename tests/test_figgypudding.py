@@ -42,6 +42,10 @@ class test_FiggyPudding(unittest.TestCase):
         self.assertEqual(config.get('pudding.foo.bar'), 1)
         self.assertEqual(config['pudding']['foo']['bar'], 1)
 
+    def test_environment(self):
+        config = Pudding.from_file(self.SAMPLE_CFG)
+        
+
 
 if __name__ == "__main__":
     unittest.main()
