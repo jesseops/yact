@@ -13,9 +13,26 @@ jump through hoops.
 Examples
 ========
 
+**Basic usage:**
+
 ::
 
     from figgypudding import Pudding
-    config = Pudding.from_search('sample.conf')
+    config = Pudding.from_file('sample.conf')
 
-    config = Pudding.from_file('/etc/sample.conf')
+**Modifying and saving:**
+
+::
+
+    config.set('foo', 'bar')
+    print(config['foo'])
+    >>> 'bar'
+    config.save()
+
+**Dot notation for nested configs:**
+
+::
+
+    config.set('this.is.nested', True)
+    print(config.get('this')['is']['nested'])
+    >>> True
