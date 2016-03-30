@@ -33,13 +33,41 @@ class Pudding(object):
                 self.refreshed = datetime.now()
                 self.refreshed_utc = datetime.utcnow()
 
-    def get(self, key):
+    def get(self, key, default=None):
         with self._lock:
-            return self._data.get(key)
+            if '.' in key:
+                namespace = key.split('.')
+                temp = self._data
+                while namespace:
+                    temp = temp.get(namespace.pop(0))
+                    if not temp:
+                        return default
+                return temp
+            else:
+                return self._data.get(key, default)
 
-    def set(self, item, value):
+    def set(self, key, value):
         with self._lock:
-            self._data[item] = value
+            if '.' in key:
+                namespace = key.split('.')
+                data = self._data
+                while namespace:
+                    temp = namespace.pop(0)
+                    if len(namespace) == 0:
+                        data[temp] = value
+                    elif not data.get(temp):
+                        data[temp] = {}
+                    elif hasattr(data.get(temp), '__getitem__'):
+                        pass  # No need to set it here
+                    else:
+                        raise ConfigEditFailed("Unable to set {}: {} is type {}".format(
+                            key,
+                            temp,
+                            type(data[temp])
+                        ))
+                    data = data[temp]
+            else:
+                self._data[key] = value
 
     def remove(self, item):
         with self._lock:

@@ -29,6 +29,19 @@ class test_FiggyPudding(unittest.TestCase):
         self.assertEqual(config['environment'], 'development')
         config.save()
 
+    def test_set(self):
+        config = Pudding.from_file(self.SAMPLE_CFG)
+        config.set('set', 'go')
+        self.assertEqual(config['set'], 'go')
+        config.set('this.must.nest', True)
+        self.assertEqual(config.get('this.must.nest'), True)
+
+
+    def test_get(self):
+        config = Pudding.from_file(self.SAMPLE_CFG)
+        self.assertEqual(config.get('pudding.foo.bar'), 1)
+        self.assertEqual(config['pudding']['foo']['bar'], 1)
+
 
 if __name__ == "__main__":
     unittest.main()
