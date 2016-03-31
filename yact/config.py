@@ -9,6 +9,10 @@ from datetime import datetime, timedelta
 logger = logging.getLogger(__name__)
 
 
+def from_file(filename, directory=None):
+    return Config.from_file(filename, directory=directory)
+
+
 class MissingConfig(Exception):
     pass
 
@@ -17,7 +21,7 @@ class ConfigEditFailed(Exception):
     pass
 
 
-class Pudding(object):
+class Config(object):
     def __init__(self, file, safe_load=True):
         self.safe_load = safe_load
         self.filename = file
@@ -75,7 +79,7 @@ class Pudding(object):
     @classmethod
     def from_file(cls, filename, directory=None):
         """
-        Return Pudding from a given file, allowing for full path,
+        Return `Config` from a given file, allowing for full path,
         relative path from
         """
         prefixes = ['/etc', '~/.config', os.path.abspath(os.path.curdir), os.path.abspath(os.path.pardir)]
@@ -95,9 +99,9 @@ class Pudding(object):
                     break
             else:
                 raise MissingConfig('{} does not exist'.format(filename))
-        pudding = cls(file=path)
-        pudding.refresh()
-        return pudding
+        config = cls(file=path)
+        config.refresh()
+        return config
 
     def save(self):
         with self._lock:
@@ -111,7 +115,7 @@ class Pudding(object):
         if attr not in ['safe_load', 'filename', '_lock', '_data', 'refreshed', 'refreshed_utc']:
             raise ConfigEditFailed("Setting config directly on {} is not allowed".format(self))
         else:
-            super(Pudding, self).__setattr__(attr, value)
+            super(Config, self).__setattr__(attr, value)
 
     def __getitem__(self, item):
         return self._data[item]
