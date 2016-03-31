@@ -9,6 +9,10 @@ from datetime import datetime, timedelta
 logger = logging.getLogger(__name__)
 
 
+def from_file(filename, directory=None):
+    return Config.from_file(filename, directory=directory)
+
+
 class MissingConfig(Exception):
     pass
 
@@ -17,11 +21,13 @@ class ConfigEditFailed(Exception):
     pass
 
 
-class Pudding(object):
+class Config(object):
     def __init__(self, file, safe_load=True):
         self.safe_load = safe_load
         self.filename = file
         self._lock = Lock()
+        self.refreshed = None
+        self.refreshed_utc = None
 
     def refresh(self):
         with self._lock:
@@ -35,39 +41,31 @@ class Pudding(object):
 
     def get(self, key, default=None):
         with self._lock:
-            if '.' in key:
-                namespace = key.split('.')
-                temp = self._data
-                while namespace:
-                    temp = temp.get(namespace.pop(0))
-                    if not temp:
-                        return default
-                return temp
-            else:
-                return self._data.get(key, default)
+            namespace = key.split('.')
+            temp = self._data
+            while namespace:
+                temp = temp.get(namespace.pop(0))
+                if not temp:
+                    return default
+            return temp
 
     def set(self, key, value):
         with self._lock:
-            if '.' in key:
-                namespace = key.split('.')
-                data = self._data
-                while namespace:
-                    temp = namespace.pop(0)
-                    if len(namespace) == 0:
-                        data[temp] = value
-                    elif not data.get(temp):
-                        data[temp] = {}
-                    elif hasattr(data.get(temp), '__getitem__'):
-                        pass  # No need to set it here
-                    else:
-                        raise ConfigEditFailed("Unable to set {}: {} is type {}".format(
-                            key,
-                            temp,
-                            type(data[temp])
-                        ))
-                    data = data[temp]
-            else:
-                self._data[key] = value
+            namespace = key.split('.')
+            data = self._data
+            for name in namespace[:-1]:
+                if not data.get(name):
+                    data[name] = {}
+                elif hasattr(data.get(temp), '__getitem__'):
+                    pass  # No need to set it here
+                else:
+                    raise ConfigEditFailed("Unable to set {}: {} is type {}".format(
+                        key,
+                        name,
+                        type(data[temp])
+                    ))
+                data = data[name]
+            data[namespace[-1]] = value
 
     def remove(self, item):
         with self._lock:
@@ -79,9 +77,9 @@ class Pudding(object):
             return list(self._data.keys())
 
     @classmethod
-    def from_file(self, filename, directory=None):
+    def from_file(cls, filename, directory=None):
         """
-        Return Pudding from a given file, allowing for full path,
+        Return `Config` from a given file, allowing for full path,
         relative path from
         """
         prefixes = ['/etc', '~/.config', os.path.abspath(os.path.curdir), os.path.abspath(os.path.pardir)]
@@ -101,9 +99,9 @@ class Pudding(object):
                     break
             else:
                 raise MissingConfig('{} does not exist'.format(filename))
-        pudding = Pudding(file=path)
-        pudding.refresh()
-        return pudding
+        config = cls(file=path)
+        config.refresh()
+        return config
 
     def save(self):
         with self._lock:
@@ -117,10 +115,7 @@ class Pudding(object):
         if attr not in ['safe_load', 'filename', '_lock', '_data', 'refreshed', 'refreshed_utc']:
             raise ConfigEditFailed("Setting config directly on {} is not allowed".format(self))
         else:
-            if sys.version_info.major == 2:
-                super(self.__class__, self).__setattr__(attr, value)
-            else:
-                super().__setattr__(attr, value)
+            super(Config, self).__setattr__(attr, value)
 
     def __getitem__(self, item):
         return self._data[item]

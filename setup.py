@@ -3,8 +3,8 @@ from setuptools import setup
 
 here = path.abspath(path.dirname(__file__))
 
-__version__ = "0.0.2"
-__desc__ = """An easy to use config package"""
+__version__ = "0.0.3"
+__desc__ = """Yet Another Config Tool"""
 
 
 with open(path.join(here, 'requirements.txt')) as r:
@@ -14,18 +14,18 @@ with open(path.join(here, 'readme.rst')) as f:
     __longdesc__ = f.read()
 
 setup(
-    name="figgypudding",
+    name="yact",
     author="Jesse Roberts",
     author_email="jesse@hackedpotatoes.com",
     version=__version__,
-    url="http://hackedpotatoes.com",
+    url="https://github.com/dreadpirate15/yact",
     install_requires=__requires__,
     extras_require={'test': ['nosetests']},
-    packages=['figgypudding'],
+    packages=['yact'],
     description=__desc__,
     long_description=__longdesc__,
     license='MIT',
-    keywords='yaml config parser pudding configuration',
+    keywords='yaml yact settings config parser pudding configuration',
     classifiers=[
         'Natural Language :: English',
         'Development Status :: 3 - Alpha',
