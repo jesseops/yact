@@ -48,7 +48,7 @@ class Config(object):
             temp = self._data
             while namespace:
                 temp = temp.get(namespace.pop(0))
-                if not temp:
+                if temp is None:
                     return default
             return temp
 
