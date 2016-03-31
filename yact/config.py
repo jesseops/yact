@@ -31,13 +31,16 @@ class Config(object):
 
     def refresh(self):
         with self._lock:
-            with open(self.filename, 'r') as f:
-                if self.safe_load:
-                    self._data = yaml.safe_load(f)
-                else:
-                    self._data = yaml.load(f)
-                self.refreshed = datetime.now()
-                self.refreshed_utc = datetime.utcnow()
+            try:
+                with open(self.filename, 'r') as f:
+                    if self.safe_load:
+                        self._data = yaml.safe_load(f)
+                    else:
+                        self._data = yaml.load(f)
+                    self.refreshed = datetime.now()
+                    self.refreshed_utc = datetime.utcnow()
+            except Exception as e:  # TODO: Split out into handling file IO and parsing errors
+                raise InvalidConfigFile('{} failed to load: {}'.format(self.filename, e))
 
     def get(self, key, default=None):
         with self._lock:
