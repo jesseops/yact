@@ -40,6 +40,7 @@ class test_yact(unittest.TestCase):
     def test_getitem(self):
         config = yact.from_file(self.SAMPLE_CFG)
         self.assertEqual(config['ham']['eggs']['bar'], 1)
+        self.assertEqual(config['ham.eggs.bar'], 1)
         with self.assertRaises(KeyError):
             config['nonexistent']
 
