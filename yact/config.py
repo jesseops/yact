@@ -45,12 +45,12 @@ class Config(object):
     def get(self, key, default=None):
         with self._lock:
             namespace = key.split('.')
-            temp = self._data
-            while namespace:
-                temp = temp.get(namespace.pop(0))
-                if temp is None:
+            data = self._data
+            for name in namespace:
+                data = data.get(name)
+                if data is None:
                     return default
-            return temp
+            return data
 
     def set(self, key, value):
         with self._lock:
@@ -71,8 +71,19 @@ class Config(object):
             data[namespace[-1]] = value
 
     def remove(self, item):
+        """
+        Remove an item from configuration file
+
+        Establishes lock on configuration data, deletes config
+        entry matching the passed in key. Saves updated configuration
+        back to file.
+        """
         with self._lock:
-            self._data.pop(item)
+            try:
+                self._data.pop(item)
+            except KeyError:
+                return  # Item already gone, no need to do anything
+        self.save()
 
     @property
     def sections(self):
@@ -107,18 +118,24 @@ class Config(object):
         return config
 
     def save(self):
+        """
+        Save current configuration back to file in YAML format
+
+        Acquires configuration lock, opens file in overwrite mode ('w')
+        and writes the output of yaml.dump to the file object.
+        default_flow_style is set to false to force proper YAML formatting
+        """
         with self._lock:
             with open(self.filename, 'w') as f:
                 yaml.dump(self._data, f, default_flow_style=False)
 
     def __repr__(self):
-        return "<{} - {}>".format(self.__class__.__name__, self.filename)
-
-    def __setattr__(self, attr, value):
-        if attr not in ['safe_load', 'filename', '_lock', '_data', 'refreshed', 'refreshed_utc']:
-            raise ConfigEditFailed("Setting config directly on {} is not allowed".format(self))
-        else:
-            super(Config, self).__setattr__(attr, value)
+        return "{}({})".format(self.__class__.__name__, self.filename)
 
     def __getitem__(self, item):
-        return self._data[item]
+        with self._lock:
+            namespace = item.split('.')
+            data = self._data
+            for name in namespace:
+                data = data[name]  # Allow keyerrors to bubble up
+            return data

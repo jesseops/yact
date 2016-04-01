@@ -21,8 +21,6 @@ class test_yact(unittest.TestCase):
         config.set('ham', {'spam': True})
         config._data['ham']['eggs'] = {'bar': 1}
         config.remove('environment')
-        with self.assertRaises(yact.ConfigEditFailed):
-            config.environment = 'development'
         with self.assertRaises(KeyError):
             env = config['environment']
         config.set('environment', 'development')
