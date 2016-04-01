@@ -6,6 +6,13 @@ python:
   - "3.4"
   - "3.5"
 
-install: "pip install -r requirements.txt"
+install:
+    - pip install -r requirements.txt
+    - pip install coveralls
+
 # command to run tests
-script: nosetests tests
+script:
+    - nosetests tests
+
+after_success:
+    - coveralls
