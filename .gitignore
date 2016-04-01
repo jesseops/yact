@@ -2,3 +2,5 @@
 figgypudding.conf
 dist
 *.egg-info
+sample.yaml
+.coverage
