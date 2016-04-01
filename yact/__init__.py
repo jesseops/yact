@@ -1,1 +1,1 @@
-from .config import Config, from_file, ConfigEditFailed, MissingConfig
+from .config import Config, from_file, ConfigEditFailed, MissingConfig, InvalidConfigFile

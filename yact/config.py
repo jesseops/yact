@@ -9,8 +9,12 @@ from datetime import datetime, timedelta
 logger = logging.getLogger(__name__)
 
 
-def from_file(filename, directory=None):
-    return Config.from_file(filename, directory=directory)
+def from_file(filename, directory=None, unsafe=False):
+    return Config.from_file(filename, directory=directory, unsafe=unsafe)
+
+
+class InvalidConfigFile(Exception):
+    pass
 
 
 class MissingConfig(Exception):
@@ -22,23 +26,23 @@ class ConfigEditFailed(Exception):
 
 
 class Config(object):
-    def __init__(self, file, safe_load=True):
-        self.safe_load = safe_load
+    def __init__(self, file, unsafe=False):
+        self.unsafe = unsafe
         self.filename = file
         self._lock = Lock()
-        self.refreshed = None
-        self.refreshed_utc = None
+        self.ts_refreshed = None
+        self.ts_refreshed_utc = None
 
     def refresh(self):
         with self._lock:
             try:
                 with open(self.filename, 'r') as f:
-                    if self.safe_load:
+                    if not self.unsafe:
                         self._data = yaml.safe_load(f)
                     else:
                         self._data = yaml.load(f)
-                    self.refreshed = datetime.now()
-                    self.refreshed_utc = datetime.utcnow()
+                    self.ts_refreshed = datetime.now()
+                    self.ts_refreshed_utc = datetime.utcnow()
             except Exception as e:  # TODO: Split out into handling file IO and parsing errors
                 raise InvalidConfigFile('{} failed to load: {}'.format(self.filename, e))
 
@@ -59,13 +63,13 @@ class Config(object):
             for name in namespace[:-1]:
                 if not data.get(name):
                     data[name] = {}
-                elif hasattr(data.get(temp), '__getitem__'):
+                elif hasattr(data.get(name), '__getitem__'):
                     pass  # No need to set it here
                 else:
                     raise ConfigEditFailed("Unable to set {}: {} is type {}".format(
                         key,
                         name,
-                        type(data[temp])
+                        type(data[name])
                     ))
                 data = data[name]
             data[namespace[-1]] = value
@@ -91,7 +95,7 @@ class Config(object):
             return list(self._data.keys())
 
     @classmethod
-    def from_file(cls, filename, directory=None):
+    def from_file(cls, filename, directory=None, unsafe=False):
         """
         Return `Config` from a given file, allowing for full path,
         relative path from
@@ -113,7 +117,7 @@ class Config(object):
                     break
             else:
                 raise MissingConfig('{} does not exist'.format(filename))
-        config = cls(file=path)
+        config = cls(file=path, unsafe=unsafe)
         config.refresh()
         return config
 
