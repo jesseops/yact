@@ -13,7 +13,6 @@ install:
 # command to run tests
 script:
     - nosetests tests
-    - coverage run --source=yact
 
 after_success:
     - coveralls
