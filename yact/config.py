@@ -10,10 +10,15 @@ logger = logging.getLogger(__name__)
 
 
 def from_file(filename, directory=None, unsafe=False):
+    """
+    Return a `Config` object from a given file. Optionally, search for filename
+    in provided directory, load config with safety features disabled
+    """
     return Config.from_file(filename, directory=directory, unsafe=unsafe)
 
 
 class InvalidConfigFile(Exception):
+    """Raised when config cannot be parsed/opened"""
     pass
 
 
@@ -47,6 +52,10 @@ class Config(object):
                 raise InvalidConfigFile('{} failed to load: {}'.format(self.filename, e))
 
     def get(self, key, default=None):
+        """
+        Retrieve the value of a key (or consecutive keys joined by periods)
+        or default, similar to dict.get
+        """
         with self._lock:
             namespace = key.split('.')
             data = self._data
@@ -57,6 +66,10 @@ class Config(object):
             return data
 
     def set(self, key, value):
+        """
+        Set the value of a provided key (or nested keys joined by periods)
+        to the provided value
+        """
         with self._lock:
             namespace = key.split('.')
             data = self._data
@@ -97,8 +110,8 @@ class Config(object):
     @classmethod
     def from_file(cls, filename, directory=None, unsafe=False):
         """
-        Return `Config` from a given file, allowing for full path,
-        relative path from
+        Return a `Config` object from a given file. Optionally, search for filename
+        in provided directory, load config with safety features disabled
         """
         prefixes = ['/etc', '~/.config', os.path.abspath(os.path.curdir), os.path.abspath(os.path.pardir)]
         if directory:
