@@ -12,7 +12,7 @@ install:
 
 # command to run tests
 script:
-    - nosetests tests
+    - nosetests tests --with-coverage --cover-package yact
 
 after_success:
     - coveralls

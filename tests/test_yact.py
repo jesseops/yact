@@ -15,6 +15,8 @@ class test_yact(unittest.TestCase):
         for tf in test_files:
             config = yact.from_file(tf, 'tests')
             self.assertIsInstance(config, yact.Config)
+        with self.assertRaises(yact.MissingConfig):
+            config = yact.from_file('bogusfile')
 
     def test_remove(self):
         config = yact.from_file(self.SAMPLE_CFG)
@@ -23,6 +25,7 @@ class test_yact(unittest.TestCase):
         config.remove('temporary')
         with self.assertRaises(KeyError):
             config['temporary']
+        config.remove('temporary') # Shouldn't error out
 
     def test_set(self):
         config = yact.from_file(self.SAMPLE_CFG)
@@ -32,6 +35,9 @@ class test_yact(unittest.TestCase):
         config.set('this.must.be.nested', True)
         self.assertEqual(config['this']['must']['nest'], True)
         self.assertEqual(config['this']['must']['be']['nested'], True)
+        config.set('this.is.a.list', [1,2,3])
+        with self.assertRaises(yact.ConfigEditFailed):
+            config.set('this.is.a.list.not', False)  # Raise expection
 
     def test_get(self):
         config = yact.from_file(self.SAMPLE_CFG)

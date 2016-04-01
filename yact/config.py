@@ -73,19 +73,19 @@ class Config(object):
         with self._lock:
             namespace = key.split('.')
             data = self._data
-            for name in namespace[:-1]:
-                if not data.get(name):
-                    data[name] = {}
-                elif hasattr(data.get(name), '__getitem__'):
-                    pass  # No need to set it here
+            for name in namespace:
+                if hasattr(data, 'get') and hasattr(data.get(name, {}), '__getitem__'):
+                    if data.get(name) is None:
+                        data[name] = {}
                 else:
-                    raise ConfigEditFailed("Unable to set {}: {} is type {}".format(
+                    raise ConfigEditFailed("Unable to set {}: {} is an invalid child of {}".format(
                         key,
                         name,
-                        type(data[name])
+                        type(data)
                     ))
+                parent = data
                 data = data[name]
-            data[namespace[-1]] = value
+            parent[name] = value
 
     def remove(self, item):
         """
