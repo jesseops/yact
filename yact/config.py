@@ -123,7 +123,6 @@ class Config(object):
             logger.debug('Searching for path to {}'.format(filename))
             for p in prefixes:
                 temp = os.path.join(p, filename)
-                print(temp)
                 if os.path.exists(temp) and not os.path.isdir(temp):
                     logger.debug("Found {} in {}".format(filename, p))
                     path = temp
