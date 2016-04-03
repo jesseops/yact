@@ -9,14 +9,6 @@ from datetime import datetime, timedelta
 logger = logging.getLogger(__name__)
 
 
-def from_file(filename, directory=None, unsafe=False):
-    """
-    Return a `Config` object from a given file. Optionally, search for filename
-    in provided directory, load config with safety features disabled
-    """
-    return Config.from_file(filename, directory=directory, unsafe=unsafe)
-
-
 class InvalidConfigFile(Exception):
     """Raised when config cannot be parsed/opened"""
     pass
@@ -56,14 +48,10 @@ class Config(object):
         Retrieve the value of a key (or consecutive keys joined by periods)
         or default, similar to dict.get
         """
-        with self._lock:
-            namespace = key.split('.')
-            data = self._data
-            for name in namespace:
-                data = data.get(name)
-                if data is None:
-                    return default
-            return data
+        try:
+            return self.__getitem__(key)
+        except KeyError:
+            return default
 
     def set(self, key, value):
         """
@@ -86,6 +74,7 @@ class Config(object):
                 parent = data
                 data = data[name]
             parent[name] = value
+        self.save()
 
     def remove(self, item):
         """

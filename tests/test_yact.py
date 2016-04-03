@@ -4,6 +4,7 @@ from time import sleep
 
 import yact
 
+
 class test_yact(unittest.TestCase):
     SAMPLE_CFG = os.path.join(os.path.curdir, 'sample.conf')
 
@@ -42,7 +43,7 @@ class test_yact(unittest.TestCase):
     def test_get(self):
         config = yact.from_file(self.SAMPLE_CFG)
         self.assertEqual(config.get('ham.eggs.bar'), 1)
-        self.assertEqual(config.get('haml.eggs.spam'), None)
+        self.assertEqual(config.get('haml.eggs.spam.this.does.not.exist'), None)
 
     def test_getitem(self):
         config = yact.from_file(self.SAMPLE_CFG)
