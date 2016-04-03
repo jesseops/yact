@@ -58,23 +58,8 @@ class Config(object):
         Set the value of a provided key (or nested keys joined by periods)
         to the provided value
         """
-        with self._lock:
-            namespace = key.split('.')
-            data = self._data
-            for name in namespace:
-                if hasattr(data, 'get') and hasattr(data.get(name, {}), '__getitem__'):
-                    if data.get(name) is None:
-                        data[name] = {}
-                else:
-                    raise ConfigEditFailed("Unable to set {}: {} is an invalid child of {}".format(
-                        key,
-                        name,
-                        type(data)
-                    ))
-                parent = data
-                data = data[name]
-            parent[name] = value
-        self.save()
+        self.__setitem__(key, value)
+
 
     def remove(self, item):
         """
@@ -144,3 +129,17 @@ class Config(object):
             for name in namespace:
                 data = data[name]  # Allow keyerrors to bubble up
             return data
+
+    def __setitem__(self, key, value):
+        with self._lock:
+            namespace = key.split('.')
+            data = self._data
+            for name in namespace[:-1]:
+                if hasattr(data, 'get') and hasattr(data.get(name, {}), 'get'):
+                    if data.get(name) is None:
+                        data[name] = {}
+                else:
+                    raise ConfigEditFailed("Unable to set {}: {} is an invalid child of {}".format(key, name, data))
+                data = data[name]
+            data[namespace[-1]] = value
+        self.save()
