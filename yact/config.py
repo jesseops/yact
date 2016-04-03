@@ -61,7 +61,7 @@ class Config(object):
         self.__setitem__(key, value)
 
 
-    def remove(self, item):
+    def remove(self, key):
         """
         Remove an item from configuration file
 
@@ -70,10 +70,14 @@ class Config(object):
         back to file.
         """
         with self._lock:
-            try:
-                self._data.pop(item)
-            except KeyError:
-                return  # Item already gone, no need to do anything
+            namespace = key.split('.')
+            data = self._data
+            for name in namespace[:-1]:
+                try:
+                    data = data[name]
+                except KeyError:
+                    return  # Item already gone, no need to do anything
+            data.pop(namespace[-1])
         self.save()
 
     @property
