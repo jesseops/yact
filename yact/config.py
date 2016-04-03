@@ -9,14 +9,6 @@ from datetime import datetime, timedelta
 logger = logging.getLogger(__name__)
 
 
-def from_file(filename, directory=None, unsafe=False):
-    """
-    Return a `Config` object from a given file. Optionally, search for filename
-    in provided directory, load config with safety features disabled
-    """
-    return Config.from_file(filename, directory=directory, unsafe=unsafe)
-
-
 class InvalidConfigFile(Exception):
     """Raised when config cannot be parsed/opened"""
     pass
@@ -56,38 +48,20 @@ class Config(object):
         Retrieve the value of a key (or consecutive keys joined by periods)
         or default, similar to dict.get
         """
-        with self._lock:
-            namespace = key.split('.')
-            data = self._data
-            for name in namespace:
-                data = data.get(name)
-                if data is None:
-                    return default
-            return data
+        try:
+            return self.__getitem__(key)
+        except KeyError:
+            return default
 
     def set(self, key, value):
         """
         Set the value of a provided key (or nested keys joined by periods)
         to the provided value
         """
-        with self._lock:
-            namespace = key.split('.')
-            data = self._data
-            for name in namespace:
-                if hasattr(data, 'get') and hasattr(data.get(name, {}), '__getitem__'):
-                    if data.get(name) is None:
-                        data[name] = {}
-                else:
-                    raise ConfigEditFailed("Unable to set {}: {} is an invalid child of {}".format(
-                        key,
-                        name,
-                        type(data)
-                    ))
-                parent = data
-                data = data[name]
-            parent[name] = value
+        self.__setitem__(key, value)
 
-    def remove(self, item):
+
+    def remove(self, key):
         """
         Remove an item from configuration file
 
@@ -96,10 +70,17 @@ class Config(object):
         back to file.
         """
         with self._lock:
+            namespace = key.split('.')
+            data = self._data
+            for name in namespace[:-1]:
+                try:
+                    data = data[name]
+                except KeyError:
+                    return  # Item already gone, no need to do anything
             try:
-                self._data.pop(item)
+                data.pop(namespace[-1])
             except KeyError:
-                return  # Item already gone, no need to do anything
+                return  # Same as above
         self.save()
 
     @property
@@ -155,3 +136,17 @@ class Config(object):
             for name in namespace:
                 data = data[name]  # Allow keyerrors to bubble up
             return data
+
+    def __setitem__(self, key, value):
+        with self._lock:
+            namespace = key.split('.')
+            data = self._data
+            for name in namespace[:-1]:
+                if hasattr(data, 'get') and hasattr(data.get(name, {}), 'get'):
+                    if data.get(name) is None:
+                        data[name] = {}
+                else:
+                    raise ConfigEditFailed("Unable to set {}: {} is an invalid child of {}".format(key, name, data))
+                data = data[name]
+            data[namespace[-1]] = value
+        self.save()

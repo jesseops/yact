@@ -1,11 +1,18 @@
 import os
+import shutil
 import unittest
 from time import sleep
 
 import yact
 
+
 class test_yact(unittest.TestCase):
-    SAMPLE_CFG = os.path.join(os.path.curdir, 'sample.conf')
+
+    @property
+    def sample_cfg(self):
+        shutil.copyfile(os.path.join(os.path.curdir, 'sample.conf'),
+         os.path.join(os.path.curdir, 'sample.testing'))  # Overwrites existing test file with sample.conf
+        return os.path.join(os.path.curdir, 'sample.testing')
 
     def test_from_file(self):
         """
@@ -19,42 +26,60 @@ class test_yact(unittest.TestCase):
             config = yact.from_file('bogusfile')
 
     def test_remove(self):
-        config = yact.from_file(self.SAMPLE_CFG)
+        config = yact.from_file(self.sample_cfg)
         config.set('temporary', True)
         self.assertEqual(config['temporary'], True)
         config.remove('temporary')
         with self.assertRaises(KeyError):
             config['temporary']
         config.remove('temporary') # Shouldn't error out
+        config.set('foo.bar.baz', True)
+        config.set('foo.bar.bat', True)
+        config.remove('foo.bar')
+        config.remove('foo.bar.baz')
+        config['foo']
+        config.remove('foo')
+
 
     def test_set(self):
-        config = yact.from_file(self.SAMPLE_CFG)
-        config.set('set', 'go')
-        self.assertEqual(config['set'], 'go')
-        config.set('this.must.nest', True)
-        config.set('this.must.be.nested', True)
-        self.assertEqual(config['this']['must']['nest'], True)
-        self.assertEqual(config['this']['must']['be']['nested'], True)
-        config.set('this.is.a.list', [1,2,3])
+        config = yact.from_file(self.sample_cfg)
+        config.set('ham', 'spam')
+        self.assertEqual(config['ham'], 'spam')
+        config.set('spam.spam.spam', True)
+        config.set('spam.with.ham.and.eggs', True)
+        self.assertEqual(config['spam']['spam']['spam'], True)
+        self.assertEqual(config['spam']['with']['ham']['and']['eggs'], True)
+        config.set('menu', ['spam', 'spam', 'spam', 'spam'])
         with self.assertRaises(yact.ConfigEditFailed):
-            config.set('this.is.a.list.not', False)  # Raise expection
+            config.set('menu.breakfast', False)  # Raise expection
+
+    def test_setitem(self):
+        config = yact.from_file(self.sample_cfg)
+        config['ham'] = 'spam'
+        self.assertEqual(config['ham'], 'spam')
+        config['spam.ham'] = 'spam'
+        self.assertEqual(config['spam']['ham'], 'spam')
+
 
     def test_get(self):
-        config = yact.from_file(self.SAMPLE_CFG)
-        self.assertEqual(config.get('ham.eggs.bar'), 1)
-        self.assertEqual(config.get('haml.eggs.spam'), None)
+        config = yact.from_file(self.sample_cfg)  # Known entries
+        self.assertEqual(config.get('environment'), 'development')
+        self.assertEqual(config.get('db.missingentry'), None)
 
     def test_getitem(self):
-        config = yact.from_file(self.SAMPLE_CFG)
-        self.assertEqual(config['ham']['eggs']['bar'], 1)
-        self.assertEqual(config['ham.eggs.bar'], 1)
+        config = yact.from_file(self.sample_cfg) # Known entries
+        self.assertEqual(config['environment'], 'development')
+        self.assertEqual(config['db.host'], 'localhost')
+        self.assertEqual(config['db']['host'], 'localhost')
         with self.assertRaises(KeyError):
-            config['nonexistent']
+            config['db.missingentry']
+        with self.assertRaises(KeyError):
+            config['missingentry']
 
     def test_save(self):
-        config = yact.from_file(self.SAMPLE_CFG)
+        config = yact.from_file(self.sample_cfg)
 
-        new_filename = self.SAMPLE_CFG.replace('conf', 'yaml')
+        new_filename = self.sample_cfg.replace('testing', 'yaml')
         config.filename = new_filename
         config.save()
 
@@ -62,7 +87,7 @@ class test_yact(unittest.TestCase):
         self.assertEqual(config._data, new_config._data)
 
     def test_refresh(self):
-        config = yact.from_file(self.SAMPLE_CFG)
+        config = yact.from_file(self.sample_cfg)
         loaded = config.ts_refreshed_utc
         sleep(2)
         config.refresh()
@@ -74,18 +99,18 @@ class test_yact(unittest.TestCase):
             config.refresh()
 
     def test_unsafe_load(self):
-        config = yact.from_file(self.SAMPLE_CFG, unsafe=True)
+        config = yact.from_file(self.sample_cfg, unsafe=True)
 
     def test_sections(self):
-        config = yact.from_file(self.SAMPLE_CFG)
+        config = yact.from_file(self.sample_cfg)
         self.assertIsInstance(config.sections, list)
 
     def test_repr(self):
         """
         Does repr do what I expect?
         """
-        config = yact.from_file(self.SAMPLE_CFG)
-        self.assertEqual(str(config), '{}({})'.format(config.__class__.__name__, self.SAMPLE_CFG))
+        config = yact.from_file(self.sample_cfg)
+        self.assertEqual(str(config), '{}({})'.format(config.__class__.__name__, self.sample_cfg))
 
 
 if __name__ == "__main__":
