@@ -33,6 +33,13 @@ class test_yact(unittest.TestCase):
         with self.assertRaises(KeyError):
             config['temporary']
         config.remove('temporary') # Shouldn't error out
+        config.set('foo.bar.baz', True)
+        config.set('foo.bar.bat', True)
+        config.remove('foo.bar')
+        config.remove('foo.bar.baz')
+        config['foo']
+        config.remove('foo')
+
 
     def test_set(self):
         config = yact.from_file(self.sample_cfg)

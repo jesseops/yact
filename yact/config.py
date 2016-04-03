@@ -77,7 +77,10 @@ class Config(object):
                     data = data[name]
                 except KeyError:
                     return  # Item already gone, no need to do anything
-            data.pop(namespace[-1])
+            try:
+                data.pop(namespace[-1])
+            except KeyError:
+                return  # Same as above
         self.save()
 
     @property
