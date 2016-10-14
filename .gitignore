@@ -5,3 +5,5 @@ dist
 sample.yaml
 .coverage
 sample.testing
+.idea
+__pycache__
