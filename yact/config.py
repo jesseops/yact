@@ -43,7 +43,7 @@ def from_file(filename, directory=None, unsafe=False):
                 break
         else:
             raise MissingConfig('{} does not exist'.format(filename))
-    config = Config(file=path, unsafe=unsafe)
+    config = Config(filename=path, unsafe=unsafe)
     config.refresh()
     return config
 
