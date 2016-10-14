@@ -49,9 +49,9 @@ def from_file(filename, directory=None, unsafe=False):
 
 
 class Config(object):
-    def __init__(self, file, unsafe=False):
+    def __init__(self, filename, unsafe=False):
         self.unsafe = unsafe
-        self.filename = file
+        self.filename = filename
         self._lock = Lock()
         self.ts_refreshed = None
         self.ts_refreshed_utc = None
