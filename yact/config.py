@@ -22,6 +22,32 @@ class ConfigEditFailed(Exception):
     pass
 
 
+def from_file(filename, directory=None, unsafe=False):
+    """
+    Return a `Config` object from a given file. Optionally, search for filename
+    in provided directory, load config with safety features disabled
+    """
+    prefixes = ['/etc', '~/.config', os.path.abspath(os.path.curdir), os.path.abspath(os.path.pardir)]
+    if directory:
+        prefixes.insert(0, directory)
+    if os.path.exists(filename) and not os.path.isdir(filename):
+        logger.debug('Retrieving config from full path {}'.format(filename))
+        path = filename
+    else:
+        logger.debug('Searching for path to {}'.format(filename))
+        for p in prefixes:
+            temp = os.path.join(p, filename)
+            if os.path.exists(temp) and not os.path.isdir(temp):
+                logger.debug("Found {} in {}".format(filename, p))
+                path = temp
+                break
+        else:
+            raise MissingConfig('{} does not exist'.format(filename))
+    config = Config(file=path, unsafe=unsafe)
+    config.refresh()
+    return config
+
+
 class Config(object):
     def __init__(self, file, unsafe=False):
         self.unsafe = unsafe
@@ -87,32 +113,6 @@ class Config(object):
     def sections(self):
         with self._lock:
             return list(self._data.keys())
-
-    @classmethod
-    def from_file(cls, filename, directory=None, unsafe=False):
-        """
-        Return a `Config` object from a given file. Optionally, search for filename
-        in provided directory, load config with safety features disabled
-        """
-        prefixes = ['/etc', '~/.config', os.path.abspath(os.path.curdir), os.path.abspath(os.path.pardir)]
-        if directory:
-            prefixes.insert(0, directory)
-        if os.path.exists(filename) and not os.path.isdir(filename):
-            logger.debug('Retrieving config from full path {}'.format(filename))
-            path = filename
-        else:
-            logger.debug('Searching for path to {}'.format(filename))
-            for p in prefixes:
-                temp = os.path.join(p, filename)
-                if os.path.exists(temp) and not os.path.isdir(temp):
-                    logger.debug("Found {} in {}".format(filename, p))
-                    path = temp
-                    break
-            else:
-                raise MissingConfig('{} does not exist'.format(filename))
-        config = cls(file=path, unsafe=unsafe)
-        config.refresh()
-        return config
 
     def save(self):
         """

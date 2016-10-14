@@ -1,2 +1,1 @@
-from .config import Config, ConfigEditFailed, MissingConfig, InvalidConfigFile
-from_file = Config.from_file
+from .config import Config, from_file, ConfigEditFailed, MissingConfig, InvalidConfigFile
