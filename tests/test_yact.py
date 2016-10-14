@@ -23,7 +23,7 @@ class test_yact(unittest.TestCase):
             config = yact.from_file(tf, 'tests')
             self.assertIsInstance(config, yact.Config)
         with self.assertRaises(yact.MissingConfig):
-            config = yact.from_file('bogusfile')
+            _ = yact.from_file('bogusfile')
 
     def test_remove(self):
         config = yact.from_file(self.sample_cfg)
@@ -39,7 +39,6 @@ class test_yact(unittest.TestCase):
         config.remove('foo.bar.baz')
         config['foo']
         config.remove('foo')
-
 
     def test_set(self):
         config = yact.from_file(self.sample_cfg)
@@ -59,7 +58,6 @@ class test_yact(unittest.TestCase):
         self.assertEqual(config['ham'], 'spam')
         config['spam.ham'] = 'spam'
         self.assertEqual(config['spam']['ham'], 'spam')
-
 
     def test_get(self):
         config = yact.from_file(self.sample_cfg)  # Known entries
