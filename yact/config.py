@@ -30,7 +30,7 @@ def from_file(filename, directory=None, unsafe=False):
     prefixes = ['/etc', '~/.config', os.path.abspath(os.path.curdir), os.path.abspath(os.path.pardir)]
     if directory:
         prefixes.insert(0, directory)
-    if os.path.exists(filename) and not os.path.isdir(filename):
+    if os.path.isfile(filename):
         logger.debug('Retrieving config from full path {}'.format(filename))
         path = filename
     else:
