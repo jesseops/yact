@@ -25,10 +25,10 @@ setup(
     description=__desc__,
     long_description=__longdesc__,
     license='MIT',
-    keywords='yaml yact settings config parser pudding configuration',
+    keywords='yaml yact settings config parser configuration',
     classifiers=[
         'Natural Language :: English',
-        'Development Status :: 3 - Alpha',
+        'Development Status :: 4 - Beta',
         'Intended Audience :: Developers',
         'License :: OSI Approved :: MIT License',
         'Programming Language :: Python :: 2',

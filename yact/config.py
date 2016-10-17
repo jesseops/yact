@@ -49,6 +49,15 @@ def from_file(filename, directory=None, unsafe=False):
 
 
 class Config(object):
+    """
+    The `Config` object is a wrapper around YAML data.
+    For most use cases, the basic functionality of
+    reading a YAML file (extension does not matter) is
+    sufficient.
+
+    While not currently tested, unsafe loading of YAML
+    files is supported using the unsafe flag.
+    """
     def __init__(self, filename, unsafe=False):
         self.unsafe = unsafe
         self.filename = filename
