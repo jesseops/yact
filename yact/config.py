@@ -15,17 +15,25 @@ class InvalidConfigFile(Exception):
 
 
 class MissingConfig(Exception):
+    """Indicates the config file does not exist"""
     pass
 
 
 class ConfigEditFailed(Exception):
+    """
+    Raised when a config edit/update is impossible
+    due to mismatched data types
+    """
     pass
 
 
 def from_file(filename, directory=None, unsafe=False):
     """
-    Return a `Config` object from a given file. Optionally, search for filename
-    in provided directory, load config with safety features disabled
+    Convenience function to search for a config file and
+    return a `Config` object. Searches some default
+    locations (currently only cares about Linux systems)
+    for the specified file. If a directory is passed in
+    it will be checked first.
     """
     prefixes = ['/etc', '~/.config', os.path.abspath(os.path.curdir), os.path.abspath(os.path.pardir)]
     if directory:
@@ -120,6 +128,9 @@ class Config(object):
 
     @property
     def sections(self):
+        """
+        Provided for users of the standard ConfigParser module.
+        """
         with self._lock:
             return list(self._data.keys())
 
@@ -139,6 +150,17 @@ class Config(object):
         return "{}({})".format(self.__class__.__name__, self.filename)
 
     def __getitem__(self, item):
+        """
+        Allow `Config` to behave as a dictionary.
+        Supports nested lookups:
+
+        ::
+
+            >>> print(config['db'])
+            {'db': {'host': 'localhost', 'port': 21707}}
+            >>> print(config['db.host'])
+            'localhost'
+        """
         with self._lock:
             namespace = item.split('.')
             data = self._data
@@ -147,6 +169,20 @@ class Config(object):
             return data
 
     def __setitem__(self, key, value):
+        """
+        Enable dict-like setting of config values.
+        Supports nested updates:
+
+        ::
+
+            >>> print(config)
+            {}
+            >>> config['db.host'] = 'localhost'
+            >>> print(config['db'])
+            {'db': {'host': 'localhost'}}
+            >>> config['db.port'] = 21707
+            {'db': {'host': 'localhost', 'port': 21707}}
+        """
         with self._lock:
             namespace = key.split('.')
             data = self._data
