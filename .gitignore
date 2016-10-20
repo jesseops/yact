@@ -8,3 +8,5 @@ sample.testing
 .idea
 __pycache__
 virtualenv
+.env
+.virtualenv
