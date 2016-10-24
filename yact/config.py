@@ -1,6 +1,7 @@
 import os
 import sys
 import yaml
+import hashlib
 import logging
 from threading import Lock
 from datetime import datetime, timedelta
@@ -25,6 +26,12 @@ class ConfigEditFailed(Exception):
     due to mismatched data types
     """
     pass
+
+
+def generate_md5sum(filename, encoding='utf-8'):
+    with open(filename, 'r') as f:
+        md5 = hashlib.md5(f.read().encode(encoding))
+    return md5.hexdigest()
 
 
 def from_file(filename, directory=None, unsafe=False):
@@ -69,6 +76,7 @@ class Config(object):
     def __init__(self, filename, unsafe=False):
         self.unsafe = unsafe
         self.filename = filename
+        self.md5sum = None
         self._lock = Lock()
         self.ts_refreshed = None
         self.ts_refreshed_utc = None
@@ -76,6 +84,7 @@ class Config(object):
     def refresh(self):
         with self._lock:
             try:
+                self.md5sum = generate_md5sum(self.filename)
                 with open(self.filename, 'r') as f:
                     if not self.unsafe:
                         self._data = yaml.safe_load(f)
@@ -145,6 +154,7 @@ class Config(object):
         with self._lock:
             with open(self.filename, 'w') as f:
                 yaml.dump(self._data, f, default_flow_style=False)
+            self.md5sum = generate_md5sum(self.filename)
 
     def __repr__(self):
         return "{}({})".format(self.__class__.__name__, self.filename)
