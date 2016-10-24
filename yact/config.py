@@ -136,6 +136,10 @@ class Config(object):
         self.save()
 
     @property
+    def config_file_changed(self):
+        return self.md5sum != generate_md5sum(self.filename)
+
+    @property
     def sections(self):
         """
         Provided for users of the standard ConfigParser module.

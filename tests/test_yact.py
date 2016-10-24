@@ -127,5 +127,12 @@ class test_yact(unittest.TestCase):
         self.assertEqual(newmd5, config.md5sum)
         self.assertNotEqual(newmd5, md5)
 
+    def test_config_file_changed(self):
+        config = yact.from_file(self.sample_cfg)
+        with open(config.filename, 'a') as f:
+            f.write('modified: True')
+        self.assertTrue(config.config_file_changed)
+
+
 if __name__ == "__main__":
     unittest.main()
