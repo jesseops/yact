@@ -1,8 +1,10 @@
 import os
 import sys
 import yaml
+import hashlib
 import logging
-from threading import Lock
+from time import sleep
+from threading import Lock, Thread
 from datetime import datetime, timedelta
 
 
@@ -27,7 +29,13 @@ class ConfigEditFailed(Exception):
     pass
 
 
-def from_file(filename, directory=None, unsafe=False):
+def generate_md5sum(filename, encoding='utf-8'):
+    with open(filename, 'r') as f:
+        md5 = hashlib.md5(f.read().encode(encoding))
+    return md5.hexdigest()
+
+
+def from_file(filename, directory=None, unsafe=False, auto_reload=False):
     """
     Convenience function to search for a config file and
     return a `Config` object. Searches some default
@@ -51,7 +59,7 @@ def from_file(filename, directory=None, unsafe=False):
                 break
         else:
             raise MissingConfig('{} does not exist'.format(filename))
-    config = Config(filename=path, unsafe=unsafe)
+    config = Config(filename=path, unsafe=unsafe, auto_reload=auto_reload)
     config.refresh()
     return config
 
@@ -66,16 +74,30 @@ class Config(object):
     While not currently tested, unsafe loading of YAML
     files is supported using the unsafe flag.
     """
-    def __init__(self, filename, unsafe=False):
+    def __init__(self, filename, unsafe=False, auto_reload=False):
         self.unsafe = unsafe
+        self.auto_reload = auto_reload
         self.filename = filename
+        self.md5sum = None
         self._lock = Lock()
         self.ts_refreshed = None
         self.ts_refreshed_utc = None
 
+    def start_file_watch(self, interval=5):
+        def watcher(config, interval):
+            while True:
+                current_md5 = config.md5sum
+                if config.config_file_changed:
+                    config.refresh()
+                sleep(interval)
+        t = Thread(target=watcher, args=(self, interval))
+        t.setDaemon(True)
+        t.start()
+
     def refresh(self):
         with self._lock:
             try:
+                self.md5sum = generate_md5sum(self.filename)
                 with open(self.filename, 'r') as f:
                     if not self.unsafe:
                         self._data = yaml.safe_load(f)
@@ -85,6 +107,8 @@ class Config(object):
                     self.ts_refreshed_utc = datetime.utcnow()
             except Exception as e:  # TODO: Split out into handling file IO and parsing errors
                 raise InvalidConfigFile('{} failed to load: {}'.format(self.filename, e))
+        if self.auto_reload is True:
+            self.start_file_watch()
 
     def get(self, key, default=None):
         """
@@ -127,6 +151,10 @@ class Config(object):
         self.save()
 
     @property
+    def config_file_changed(self):
+        return self.md5sum != generate_md5sum(self.filename)
+
+    @property
     def sections(self):
         """
         Provided for users of the standard ConfigParser module.
@@ -145,6 +173,7 @@ class Config(object):
         with self._lock:
             with open(self.filename, 'w') as f:
                 yaml.dump(self._data, f, default_flow_style=False)
+            self.md5sum = generate_md5sum(self.filename)
 
     def __repr__(self):
         return "{}({})".format(self.__class__.__name__, self.filename)
