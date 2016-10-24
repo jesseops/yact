@@ -138,7 +138,7 @@ class test_yact(unittest.TestCase):
         oldmd5 = config.md5sum
         with open(config.filename, 'a') as f:
             f.write('modified: True')
-        sleep(5)
+        sleep(6)
         # By now yact should have refreshed, let's verify
         self.assertNotEqual(oldmd5, config.md5sum)
 
