@@ -1,5 +1,6 @@
 import os
 import shutil
+import hashlib
 import unittest
 from time import sleep
 
@@ -110,6 +111,21 @@ class test_yact(unittest.TestCase):
         config = yact.from_file(self.sample_cfg)
         self.assertEqual(str(config), '{}({})'.format(config.__class__.__name__, self.sample_cfg))
 
+    def test_md5sum(self):
+        # First, let's test the fresh config file
+        with open(self.sample_cfg, 'r') as f:
+            md5 = hashlib.md5(f.read().encode('utf-8')).hexdigest()
+        config = yact.from_file(self.sample_cfg)
+        # If all is good, the raw md5sum and the one provided by yact will match
+        self.assertEqual(config.md5sum, md5)
+
+        # This is a bit tricky, we copy a file every time self.sample_cfg
+        # is accessed so we need to know the current filename config uses
+        config.set('thischanged', True)
+        with open(config.filename, 'r') as f:
+            newmd5 = hashlib.md5(f.read().encode('utf-8')).hexdigest()
+        self.assertEqual(newmd5, config.md5sum)
+        self.assertNotEqual(newmd5, md5)
 
 if __name__ == "__main__":
     unittest.main()
