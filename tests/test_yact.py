@@ -133,6 +133,15 @@ class test_yact(unittest.TestCase):
             f.write('modified: True')
         self.assertTrue(config.config_file_changed)
 
+    def test_autoreload(self):
+        config = yact.from_file(self.sample_cfg, auto_reload=True)
+        oldmd5 = config.md5sum
+        with open(config.filename, 'a') as f:
+            f.write('modified: True')
+        sleep(5)
+        # By now yact should have refreshed, let's verify
+        self.assertNotEqual(oldmd5, config.md5sum)
+
 
 if __name__ == "__main__":
     unittest.main()
