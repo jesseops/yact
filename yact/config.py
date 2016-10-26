@@ -77,6 +77,7 @@ class Config(object):
     def __init__(self, filename, unsafe=False, auto_reload=False):
         self.unsafe = unsafe
         self.auto_reload = auto_reload
+        self._file_watcher = None
         self.filename = filename
         self.md5sum = None
         self._lock = Lock()
@@ -86,13 +87,12 @@ class Config(object):
     def start_file_watch(self, interval=5):
         def watcher(config, interval):
             while True:
-                current_md5 = config.md5sum
                 if config.config_file_changed:
                     config.refresh()
                 sleep(interval)
-        t = Thread(target=watcher, args=(self, interval))
-        t.setDaemon(True)
-        t.start()
+        self._file_watcher = Thread(target=watcher, args=(self, interval))
+        self._file_watcher.setDaemon(True)
+        self._file_watcher.start()
 
     def refresh(self):
         with self._lock:
@@ -107,7 +107,7 @@ class Config(object):
                     self.ts_refreshed_utc = datetime.utcnow()
             except Exception as e:  # TODO: Split out into handling file IO and parsing errors
                 raise InvalidConfigFile('{} failed to load: {}'.format(self.filename, e))
-        if self.auto_reload is True:
+        if self.auto_reload is True and not self._file_watcher:
             self.start_file_watch()
 
     def get(self, key, default=None):
