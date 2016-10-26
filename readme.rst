@@ -3,11 +3,11 @@ YACT - Yet Another Config tool
 ============
 Simple configuration handling for Python applications.
 ------------------------------------------------------
-.. image :: https://travis-ci.org/dreadpirate15/yact.svg?branch=master
-    :target: https://travis-ci.org/dreadpirate15/yact
+.. image :: https://travis-ci.org/jesseops/yact.svg?branch=master
+    :target: https://travis-ci.org/jesseops/yact
 
-.. image :: https://coveralls.io/repos/github/dreadpirate15/yact/badge.svg?branch=master
-    :target: https://coveralls.io/github/dreadpirate15/yact?branch=master
+.. image :: https://coveralls.io/repos/github/jesseops/yact/badge.svg?branch=master
+    :target: https://coveralls.io/github/jesseops/yact?branch=master
 
 YACT is a simple, lightweight, and flexible configuration package for Python applications.
 It's designed to be as easy as possible to setup configuration for your project without needing to
