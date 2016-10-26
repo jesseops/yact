@@ -85,6 +85,8 @@ class Config(object):
         self.ts_refreshed_utc = None
 
     def start_file_watch(self, interval=5):
+        if self._file_watcher and self._file_watcher.is_alive():
+            return True  # No need to create a new watcher
         def watcher(config, interval):
             while True:
                 if config.config_file_changed:
@@ -107,7 +109,7 @@ class Config(object):
                     self.ts_refreshed_utc = datetime.utcnow()
             except Exception as e:  # TODO: Split out into handling file IO and parsing errors
                 raise InvalidConfigFile('{} failed to load: {}'.format(self.filename, e))
-        if self.auto_reload is True and not self._file_watcher:
+        if self.auto_reload is True:
             self.start_file_watch()
 
     def get(self, key, default=None):
