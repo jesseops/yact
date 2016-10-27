@@ -6,7 +6,7 @@
 YACT - A Pythonic approach to configuration
 ===========================================
 
-Release v\ |version|. (:ref:`Installation <install>`)
+Release v\ |version|. (:ref:`Installation <installation>`)
 
 YACT is a friendly configuration tool that does all the heavy lifting so you don't have to.
 
@@ -46,9 +46,6 @@ Here you will find documentation of the actual code. Wondering what exactly
    ::maxdepth: 2
 
    api
-
-.. autoclass:: yact.Config
-   :members:
 
 
 Contribution Guide
