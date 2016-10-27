@@ -47,7 +47,7 @@ Here you will find documentation of the actual code. Wondering what exactly
 
    api
 
-.. automodule:: yact
+.. autoclass:: yact.Config
    :members:
 
 
