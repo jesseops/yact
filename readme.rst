@@ -41,3 +41,8 @@ Examples
     config.set('this.is.nested', True)
     print(config.get('this')['is']['nested'])
     >>> True
+
+
+.. image:: https://badges.gitter.im/yact-py/Lobby.svg
+   :alt: Join the chat at https://gitter.im/yact-py/Lobby
+   :target: https://gitter.im/yact-py/Lobby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge
