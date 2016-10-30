@@ -22,6 +22,7 @@ search for config files, or any of that nonsense. Even better, YACT can
 automatically reload your configuration file when it detects the file has
 changed.
 
+    >>> config = yact.from_file('my-config.yaml', auto_reload=True)
 
 YACT is tested against Python 2.7 & 3.3-3.5.
 

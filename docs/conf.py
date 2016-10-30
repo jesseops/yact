@@ -113,7 +113,13 @@ html_theme = 'alabaster'
 # documentation.
 html_theme_options = {
     'github_user': 'jesseops',
-    'github_repo': 'yact'
+    'github_repo': 'yact',
+    'description': 'A Pythonic approach to handling configuration',
+    'github_banner': True,
+    'codecov_button': True,
+    'travis_button': True,
+    'analytics_id': 'UA-86427924-1',
+
 }
 
 
