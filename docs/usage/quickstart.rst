@@ -23,6 +23,7 @@ YACT is under active development on `GitHub <https://github.com/jesseops/yact>`_
 To install YACT via git, run this in your terminal:
 
     $ git clone git@github.com/jesseops/yact.git
+    $ cd yact && python setup.py install
 
 
 Loading Config
