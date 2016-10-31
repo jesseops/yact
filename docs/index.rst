@@ -20,11 +20,11 @@ YACT allows you to write human readable configuration files using YAML, then
 load that configuration into your app without having to set up parsers, or
 search for config files, or any of that nonsense. Even better, YACT can
 automatically reload your configuration file when it detects the file has
-changed.
+changed.::
 
     >>> config = yact.from_file('my-config.yaml', auto_reload=True)
 
-YACT is tested against Python 2.7 & 3.3-3.5.
+YACT is tested against Python 2.7, 3.3-3.6(dev) and PyPy.
 
 
 Usage Guide

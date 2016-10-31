@@ -24,26 +24,24 @@ Examples
 
 ::
 
-    import yact
-    config = yact.from_file('sample.conf')
-    isinstance(config, yact.Config)
-    >>> True
+    >>> import yact
+    >>> config = yact.from_file('sample.conf')
+    >>> assert isinstance(config, yact.Config)
+    True
 
 **Modifying and saving:**
 
 ::
 
-    config.set('foo', 'bar')
-    print(config['foo'])
-    >>> 'bar'
-    config.save()
+    >>> config.set('foo', 'bar')
+    >>> print(config['foo'])
+    'bar'
+    >>> config.save()
 
 **Dot notation for nested configs:**
 
 ::
 
-    config.set('this.is.nested', True)
-    print(config.get('this')['is']['nested'])
-    >>> True
-
-
+    >>> config.set('this.is.nested', True)
+    >>> print(config.get('this')['is']['nested'])
+    True
