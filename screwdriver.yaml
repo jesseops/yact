@@ -5,9 +5,7 @@ shared:
 jobs:
   main:
     steps:
-      - install:
-	- pip install -r requirements.txt
-        - pip install coveralls
+      - install-requirements: pip install -r requirements.txt
+      - install-coveralls: pip install coveralls
       - tests: nosetests tests --with-coverage --cover-package yact
-      - post_tests:
-        - coveralls
+      - post_tests: coveralls
