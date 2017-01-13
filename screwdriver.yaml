@@ -6,6 +6,6 @@ jobs:
   main:
     steps:
       - install-requirements: pip install -r requirements.txt
-      - install-coveralls: pip install coveralls
+      - install-testthings: pip install nose coveralls
       - tests: nosetests tests --with-coverage --cover-package yact
       - post_tests: coveralls
