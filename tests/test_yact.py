@@ -11,7 +11,7 @@ class test_yact(unittest.TestCase):
 
     @property
     def sample_cfg(self):
-        shutil.copyfile(os.path.join(os.path.curdir, 'sample.conf'),
+        shutil.copyfile(os.path.join(os.path.curdir, 'sample.yaml'),
          os.path.join(os.path.curdir, 'sample.testing'))  # Overwrites existing test file with sample.conf
         return os.path.join(os.path.curdir, 'sample.testing')
 
@@ -19,7 +19,7 @@ class test_yact(unittest.TestCase):
         """
         Check instantiation from path, filename
         """
-        test_files = ['test.conf', os.path.join(os.path.curdir, 'test.conf')]
+        test_files = ['test.yaml', os.path.join(os.path.curdir, 'test.yaml')]
         for tf in test_files:
             config = yact.from_file(tf, 'tests')
             self.assertIsInstance(config, yact.Config)
