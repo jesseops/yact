@@ -25,7 +25,7 @@ Examples
 ::
 
     >>> import yact
-    >>> config = yact.from_file('sample.conf')
+    >>> config = yact.from_file('sample.yaml')
     >>> assert isinstance(config, yact.Config)
     True
 

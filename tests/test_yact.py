@@ -12,7 +12,7 @@ class test_yact(unittest.TestCase):
     @property
     def sample_cfg(self):
         shutil.copyfile(os.path.join(os.path.curdir, 'sample.yaml'),
-         os.path.join(os.path.curdir, 'sample.testing'))  # Overwrites existing test file with sample.conf
+         os.path.join(os.path.curdir, 'sample.testing'))  # Overwrites existing test file with sample.yaml
         return os.path.join(os.path.curdir, 'sample.testing')
 
     def test_from_file(self):
