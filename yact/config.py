@@ -7,7 +7,6 @@ from time import sleep
 from threading import Lock, Thread
 from datetime import datetime, timedelta
 
-
 logger = logging.getLogger(__name__)
 
 
@@ -74,6 +73,7 @@ class Config(object):
     While not currently tested, unsafe loading of YAML
     files is supported using the unsafe flag.
     """
+
     def __init__(self, filename, unsafe=False, auto_reload=False):
         self.unsafe = unsafe
         self.auto_reload = auto_reload
@@ -87,11 +87,13 @@ class Config(object):
     def start_file_watch(self, interval=5):
         if self._file_watcher and self._file_watcher.is_alive():
             return True  # No need to create a new watcher
+
         def watcher(config, interval):
             while True:
                 if config.config_file_changed:
                     config.refresh()
                 sleep(interval)
+
         self._file_watcher = Thread(target=watcher, args=(self, interval))
         self._file_watcher.setDaemon(True)
         self._file_watcher.start()
@@ -128,7 +130,6 @@ class Config(object):
         to the provided value
         """
         self.__setitem__(key, value)
-
 
     def remove(self, key):
         """

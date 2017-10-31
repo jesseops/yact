@@ -24,7 +24,7 @@ changed.::
 
     >>> config = yact.from_file('my-config.yaml', auto_reload=True)
 
-YACT is tested against Python 2.7, 3.3-3.6(dev) and PyPy.
+YACT is tested against Python 2.7, 3.3-3.6 and PyPy.
 
 
 Usage Guide

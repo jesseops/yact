@@ -50,7 +50,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = u'YACT'
-copyright = u'2016, Jesse Roberts'
+copyright = u'2017, Jesse Roberts'
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
