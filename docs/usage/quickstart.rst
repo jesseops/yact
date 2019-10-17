@@ -37,14 +37,14 @@ to search in if it's not in a standard location.
 Example
 ~~~~~~~
 
-Standard loading
+Standard loading:
 
     >>> import yact
     >>> config = yact.from_file('my-config.yaml')
     >>> print(config.filename)
     '/etc/my-config.yaml'
 
-Explicit directory
+Explicit directory:
 
     >>> config = yact.from_file('my-config.yaml', directory='/opt/my-app')
     >>> print(config.filename)
@@ -53,3 +53,23 @@ Explicit directory
 
 Saving Config
 -------------
+
+There's no need! As long as you use the standard methods of updating a config entry,
+YACT will automatically save your changes to the original configuration file.
+
+Example:
+~~~~~~~~
+
+    >>> config = yact.from_file('mynewconfig.yaml', create_if_missing=True)
+    >>> config.set('my.new.setting', True)
+
+Done!
+
+
+Auto Reloading
+--------------
+
+YACT will watch for changes to your config files and automatically reload your configuration
+without any extra code on your end. Just set `auto_reload` to `True` when loading your config:
+
+    >>> config = yact.from_file('myconfig.yaml', auto_reload=True)

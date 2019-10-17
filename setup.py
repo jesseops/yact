@@ -6,7 +6,6 @@ here = path.abspath(path.dirname(__file__))
 __version__ = "0.5.1"
 __desc__ = """Yet Another Config Tool"""
 
-
 with open(path.join(here, 'requirements.txt')) as r:
     __requires__ = [x.strip() for x in r.readlines() if not x.startswith('--')]
 
@@ -18,7 +17,7 @@ setup(
     author="Jesse Roberts",
     author_email="jesse@hackedpotatoes.com",
     version=__version__,
-    url="https://github.com/dreadpirate15/yact",
+    url="https://github.com/jesseops/yact",
     install_requires=__requires__,
     extras_require={'test': ['nosetests']},
     packages=['yact'],
@@ -37,5 +36,6 @@ setup(
         'Programming Language :: Python :: 3.3',
         'Programming Language :: Python :: 3.4',
         'Programming Language :: Python :: 3.5',
+        'Programming Language :: Python :: 3.6',
     ]
 )
