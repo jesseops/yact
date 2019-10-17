@@ -7,7 +7,6 @@ from time import sleep
 from threading import Lock, Thread
 from datetime import datetime, timedelta
 
-
 logger = logging.getLogger(__name__)
 
 
@@ -35,13 +34,20 @@ def generate_md5sum(filename, encoding='utf-8'):
     return md5.hexdigest()
 
 
-def from_file(filename, directory=None, unsafe=False, auto_reload=False):
+def from_file(filename, directory=None, unsafe=False, auto_reload=False, create_if_missing=False):
     """
     Convenience function to search for a config file and
     return a `Config` object. Searches some default
     locations (currently only cares about Linux systems)
     for the specified file. If a directory is passed in
     it will be checked first.
+
+    Requesting a config file that does not exist will fail
+    by default. If you really do want to create the file,
+    pass the `create_if_missing` argument. The requested
+    config file will be created relative to your current
+    directory unless `directory` is passed, in which case
+    the file will be created there.
     """
     prefixes = ['/etc', '~/.config', os.path.abspath(os.path.curdir), os.path.abspath(os.path.pardir)]
     if directory:
@@ -58,7 +64,8 @@ def from_file(filename, directory=None, unsafe=False, auto_reload=False):
                 path = temp
                 break
         else:
-            raise MissingConfig('{} does not exist'.format(filename))
+            if not create_if_missing:
+                raise MissingConfig('{} does not exist'.format(filename))
     config = Config(filename=path, unsafe=unsafe, auto_reload=auto_reload)
     config.refresh()
     return config
@@ -74,6 +81,7 @@ class Config(object):
     While not currently tested, unsafe loading of YAML
     files is supported using the unsafe flag.
     """
+
     def __init__(self, filename, unsafe=False, auto_reload=False):
         self.unsafe = unsafe
         self.auto_reload = auto_reload
@@ -87,11 +95,13 @@ class Config(object):
     def start_file_watch(self, interval=5):
         if self._file_watcher and self._file_watcher.is_alive():
             return True  # No need to create a new watcher
+
         def watcher(config, interval):
             while True:
                 if config.config_file_changed:
                     config.refresh()
                 sleep(interval)
+
         self._file_watcher = Thread(target=watcher, args=(self, interval))
         self._file_watcher.setDaemon(True)
         self._file_watcher.start()
@@ -128,7 +138,6 @@ class Config(object):
         to the provided value
         """
         self.__setitem__(key, value)
-
 
     def remove(self, key):
         """

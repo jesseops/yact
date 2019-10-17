@@ -11,3 +11,4 @@ virtualenv
 .virtualenv
 *.venv
 _build
+.tox
