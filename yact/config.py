@@ -35,13 +35,20 @@ def generate_md5sum(filename, encoding='utf-8'):
     return md5.hexdigest()
 
 
-def from_file(filename, directory=None, unsafe=False, auto_reload=False):
+def from_file(filename, directory=None, unsafe=False, auto_reload=False, create_if_missing=False):
     """
     Convenience function to search for a config file and
     return a `Config` object. Searches some default
     locations (currently only cares about Linux systems)
     for the specified file. If a directory is passed in
     it will be checked first.
+
+    Requesting a config file that does not exist will fail
+    by default. If you really do want to create the file,
+    pass the `create_if_missing` argument. The requested
+    config file will be created relative to your current
+    directory unless `directory` is passed, in which case
+    the file will be created there.
     """
     prefixes = ['/etc', '~/.config', os.path.abspath(os.path.curdir), os.path.abspath(os.path.pardir)]
     if directory:
@@ -58,7 +65,8 @@ def from_file(filename, directory=None, unsafe=False, auto_reload=False):
                 path = temp
                 break
         else:
-            raise MissingConfig('{} does not exist'.format(filename))
+            if not create_if_missing:
+                raise MissingConfig('{} does not exist'.format(filename))
     config = Config(filename=path, unsafe=unsafe, auto_reload=auto_reload)
     config.refresh()
     return config
